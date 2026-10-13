@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluación Interactiva - Lección 6: Controlando a Distancia</title>
+    <title>Evaluación Interactiva - Lección 6 (Google Sheets Sync)</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,8 +15,6 @@
             --text: #1e293b;
             --text-muted: #64748b;
             --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
         }
 
         * {
@@ -139,7 +137,7 @@
             font-size: 0.75rem;
         }
 
-        /* Sidebar / Leaderboard */
+        /* Sidebar / Top 10 */
         .sidebar {
             background: white;
             border-radius: 16px;
@@ -152,9 +150,6 @@
             font-size: 1.25rem;
             color: var(--primary);
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .top-list {
@@ -173,23 +168,9 @@
             font-size: 0.9rem;
         }
 
-        .top-item:nth-child(1) {
-            background: #fef3c7;
-            border-color: #fde047;
-            font-weight: 700;
-        }
-
-        .top-item:nth-child(2) {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
-            font-weight: 600;
-        }
-
-        .top-item:nth-child(3) {
-            background: #ffedd5;
-            border-color: #fed7aa;
-            font-weight: 600;
-        }
+        .top-item:nth-child(1) { background: #fef3c7; border-color: #fde047; font-weight: 700; }
+        .top-item:nth-child(2) { background: #f1f5f9; border-color: #cbd5e1; font-weight: 600; }
+        .top-item:nth-child(3) { background: #ffedd5; border-color: #fed7aa; font-weight: 600; }
 
         .rank-badge {
             width: 24px;
@@ -205,28 +186,12 @@
             margin-right: 8px;
         }
 
-        .top-item:nth-child(1) .rank-badge { background: #d97706; }
-        .top-item:nth-child(2) .rank-badge { background: #64748b; }
-        .top-item:nth-child(3) .rank-badge { background: #c2410c; }
+        .score-badge { font-weight: 700; color: var(--success); }
 
-        .student-top-info {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-
-        .score-badge {
-            font-weight: 700;
-            color: var(--success);
-        }
-
-        /* Modal / Quiz View */
+        /* Modal / Quiz */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(4px);
             display: none;
@@ -257,120 +222,34 @@
             align-items: center;
         }
 
-        .modal-header h3 {
-            color: var(--primary);
-            font-size: 1.4rem;
-        }
-
         .close-btn {
-            background: #f1f5f9;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            transition: all 0.2s;
-        }
-
-        .close-btn:hover {
-            background: #e2e8f0;
-            color: var(--text);
+            background: #f1f5f9; border: none; width: 36px; height: 36px;
+            border-radius: 50%; cursor: pointer; font-weight: bold;
         }
 
         .q-card {
-            margin-bottom: 22px;
-            background: #f8fafc;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            margin-bottom: 22px; background: #f8fafc; padding: 16px;
+            border-radius: 12px; border: 1px solid #e2e8f0;
         }
 
-        .q-title {
-            font-weight: 600;
-            font-size: 0.98rem;
-            margin-bottom: 12px;
-            color: var(--text);
-        }
+        .q-title { font-weight: 600; margin-bottom: 12px; }
 
         .option-label {
-            display: flex;
-            align-items: center;
-            padding: 10px 14px;
-            background: white;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.9rem;
+            display: flex; align-items: center; padding: 10px 14px;
+            background: white; border: 1.5px solid #cbd5e1; border-radius: 8px;
+            margin-bottom: 8px; cursor: pointer; font-size: 0.9rem;
         }
 
-        .option-label:hover {
-            border-color: var(--primary);
-            background: #eef2ff;
-        }
-
-        .option-label input {
-            margin-right: 12px;
-            accent-color: var(--primary);
-            width: 18px;
-            height: 18px;
-        }
+        .option-label input { margin-right: 12px; accent-color: var(--primary); }
 
         .btn-submit {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
+            width: 100%; background: var(--primary); color: white; border: none;
+            padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
         }
 
-        .btn-submit:hover {
-            background: var(--primary-hover);
-        }
-
-        .results-box {
-            text-align: center;
-            padding: 20px;
-            display: none;
-        }
-
-        .results-score {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 10px 0;
-        }
-
-        .feedback-text {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            color: var(--text-muted);
-        }
-
-        .btn-retry {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-retry:hover {
-            opacity: 0.9;
-        }
+        .results-box { text-align: center; padding: 20px; display: none; }
+        .results-score { font-size: 3rem; font-weight: 700; color: var(--primary); margin: 10px 0; }
+        .btn-retry { background: var(--secondary); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -378,31 +257,25 @@
 <div class="container">
     <header>
         <h1>🤖 Robótica y Programación Intermedia 2</h1>
-        <p>Lección 3: Controlando a Distancia (Bluetooth Controller) — 6to Grado Grupo A</p>
+        <p>Lección 3: Controlando a Distancia (Sincronizado con Google Sheet) — 6to Grado Grupo A</p>
     </header>
 
     <div class="main-layout">
-        <!-- Grid de Alumnos -->
         <div>
             <div class="students-grid" id="studentsGrid"></div>
         </div>
-
-        <!-- Sidebar Top 10 -->
         <div class="sidebar">
             <h2>🏆 TOP 10 Mejores Puntos</h2>
-            <ul class="top-list" id="topList">
-                <li style="text-align: center; color: var(--text-muted); padding: 10px;">Cargando...</li>
-            </ul>
+            <ul class="top-list" id="topList"></ul>
         </div>
     </div>
 </div>
 
-<!-- Modal para responder Cuestionario -->
 <div class="modal-overlay" id="quizModal">
     <div class="modal-content">
         <div class="modal-header">
             <div>
-                <h3 id="modalStudentName">Nombre Alumno</h3>
+                <h3 id="modalStudentName">Alumno</h3>
                 <span id="modalStudentAttempts" style="font-size: 0.8rem; color: var(--text-muted);">Intentos: 0</span>
             </div>
             <button class="close-btn" onclick="closeQuiz()">✕</button>
@@ -416,14 +289,17 @@
         <div class="results-box" id="resultsBox">
             <h3>🎉 ¡Cuestionario Completado!</h3>
             <div class="results-score" id="scoreDisplay">0 / 10</div>
-            <p class="feedback-text" id="feedbackDisplay"></p>
+            <p id="feedbackDisplay" style="margin-bottom: 20px; color: var(--text-muted);"></p>
             <button class="btn-retry" onclick="resetQuizView()">Intentar de Nuevo 🔄</button>
         </div>
     </div>
 </div>
 
 <script>
-    const students = [
+    // PEGA AQUÍ LA URL DE TU GOOGLE APPS SCRIPT
+    const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzp-TNjiuJfUmOBr4too6qonTU8GPU0hxwqtVuE-ob7-PfdvO7NczfdIJq1aHyWrAEnaA/exec";
+
+    const initialStudents = [
         {"name": "Maximiliano", "lastname": "Alejo Romero"},
         {"name": "Elena Sofía", "lastname": "De Lara Gamas"},
         {"name": "Natalia", "lastname": "Gallegos Villa"},
@@ -450,128 +326,77 @@
     ];
 
     const questions = [
-        {
-            "q": "1. ¿Qué es la radiofrecuencia (RF)?",
-            "options": [
-                "Transmisión de luz mediante cables de fibra óptica.",
-                "Aplicación de ondas electromagnéticas de alta frecuencia para transmitir datos.",
-                "Sonidos de muy baja frecuencia transmitidos por el aire.",
-                "Conexión física mediante cable Ethernet entre dispositivos."
-            ],
-            "answer": 1
-        },
-        {
-            "q": "2. ¿En qué rango del espectro electromagnético se encuentra la radiofrecuencia?",
-            "options": [
-                "Entre 1 Hz y 100 Hz.",
-                "Entre 100 GHz y 1000 GHz.",
-                "Entre 3 hercios (Hz) y 300 gigahercios (GHz).",
-                "Entre 500 MHz y 1 THz."
-            ],
-            "answer": 2
-        },
-        {
-            "q": "3. ¿Por qué el mBot v2 NO puede conectarse al Dongle y al Bluetooth Controller al mismo tiempo?",
-            "options": [
-                "Porque el robot se queda sin batería.",
-                "Porque usan el mismo canal de comunicaciones y no permite conexión simultánea.",
-                "Porque el control Bluetooth solo funciona sin baterías.",
-                "Porque mBlock 5 lo prohíbe en todos sus programas."
-            ],
-            "answer": 1
-        },
-        {
-            "q": "4. ¿Cómo debes presionar el botón de Bluetooth en el control para ponerlo en modo de emparejamiento?",
-            "options": [
-                "Presionarlo 1 vez rápidamente.",
-                "Mantenerlo presionado durante 5 segundos hasta que el LED parpadee rápidamente.",
-                "Presionarlo 3 veces seguidas.",
-                "Mantener presionado el botón R1 al mismo tiempo."
-            ],
-            "answer": 1
-        },
-        {
-            "q": "5. ¿Qué significa si el LED del Bluetooth Controller cambia a color ROJO?",
-            "options": [
-                "Que el robot está apagado.",
-                "Que la batería del control está por agotarse.",
-                "Que el código se subió correctamente.",
-                "Que el Bluetooth está desconectado."
-            ],
-            "answer": 1
-        },
-        {
-            "q": "6. ¿Cuántos botones programables en total tiene el Bluetooth Controller?",
-            "options": [
-                "8 botones.",
-                "10 botones.",
-                "16 botones programables.",
-                "20 botones."
-            ],
-            "answer": 2
-        },
-        {
-            "q": "7. ¿En qué modo de mBlock 5 debe utilizarse la extensión 'Bluetooth Controller'?",
-            "options": [
-                "En Modo En Vivo (Live Mode).",
-                "En Modo Carga (Upload Mode).",
-                "En Modo Simulación.",
-                "Funciona por igual en cualquier modo."
-            ],
-            "answer": 1
-        },
-        {
-            "q": "8. ¿Qué rango de valores entregan los bloques de Joystick del control en mBlock 5?",
-            "options": [
-                "De 0 a 10.",
-                "De -100 a 100.",
-                "De 0 a 255.",
-                "De -1000 a 1000."
-            ],
-            "answer": 1
-        },
-        {
-            "q": "9. ¿Qué microcontrolador/módulo principal del mBot v2 recibe y decodifica las ondas del control?",
-            "options": [
-                "Arduino Uno.",
-                "ESP32.",
-                "Raspberry Pi.",
-                "Micro:bit."
-            ],
-            "answer": 1
-        },
-        {
-            "q": "10. ¿Qué indica una luz azul FIJA en el LED del Bluetooth Controller?",
-            "options": [
-                "Está buscando un nuevo dispositivo.",
-                "Se encuentra sincronizado con un robot o dispositivo.",
-                "Indica un error de programación.",
-                "El control está apagado."
-            ],
-            "answer": 1
-        }
+        { "q": "1. ¿Qué es la radiofrecuencia (RF)?", "options": ["Transmisión de luz mediante cables de fibra óptica.", "Aplicación de ondas electromagnéticas de alta frecuencia para transmitir datos.", "Sonidos de muy baja frecuencia transmitidos por el aire.", "Conexión física mediante cable Ethernet entre dispositivos."], "answer": 1 },
+        { "q": "2. ¿En qué rango del espectro electromagnético se encuentra la radiofrecuencia?", "options": ["Entre 1 Hz y 100 Hz.", "Entre 100 GHz y 1000 GHz.", "Entre 3 hercios (Hz) y 300 gigahercios (GHz).", "Entre 500 MHz y 1 THz."], "answer": 2 },
+        { "q": "3. ¿Por qué el mBot v2 NO puede conectarse al Dongle y al Bluetooth Controller al mismo tiempo?", "options": ["Porque el robot se queda sin batería.", "Porque usan el mismo canal de comunicaciones y no permite conexión simultánea.", "Porque el control Bluetooth solo funciona sin baterías.", "Porque mBlock 5 lo prohíbe en todos sus programas."], "answer": 1 },
+        { "q": "4. ¿Cómo debes presionar el botón de Bluetooth en el control para ponerlo en modo de emparejamiento?", "options": ["Presionarlo 1 vez rápidamente.", "Mantenerlo presionado durante 5 segundos hasta que el LED parpadee rápidamente.", "Presionarlo 3 veces seguidas.", "Mantener presionado el botón R1 al mismo tiempo."], "answer": 1 },
+        { "q": "5. ¿Qué significa si el LED del Bluetooth Controller cambia a color ROJO?", "options": ["Que el robot está apagado.", "Que la batería del control está por agotarse.", "Que el código se subió correctamente.", "Que el Bluetooth está desconectado."], "answer": 1 },
+        { "q": "6. ¿Cuántos botones programables en total tiene el Bluetooth Controller?", "options": ["8 botones.", "10 botones.", "16 botones programables.", "20 botones."], "answer": 2 },
+        { "q": "7. ¿En qué modo de mBlock 5 debe utilizarse la extensión 'Bluetooth Controller'?", "options": ["En Modo En Vivo (Live Mode).", "En Modo Carga (Upload Mode).", "En Modo Simulación.", "Funciona por igual en cualquier modo."], "answer": 1 },
+        { "q": "8. ¿Qué rango de valores entregan los bloques de Joystick del control en mBlock 5?", "options": ["De 0 a 10.", "De -100 a 100.", "De 0 a 255.", "De -1000 a 1000."], "answer": 1 },
+        { "q": "9. ¿Qué microcontrolador/módulo principal del mBot v2 recibe y decodifica las ondas del control?", "options": ["Arduino Uno.", "ESP32.", "Raspberry Pi.", "Micro:bit."], "answer": 1 },
+        { "q": "10. ¿Qué indica una luz azul FIJA en el LED del Bluetooth Controller?", "options": ["Está buscando un nuevo dispositivo.", "Se encuentra sincronizado con un robot o dispositivo.", "Indica un error de programación.", "El control está apagado."], "answer": 1 }
     ];
 
+    let studentState = [];
     let currentStudentIndex = null;
 
-    function getStoredData() {
+    async function loadScoresFromSheet() {
+        try {
+            if (GOOGLE_SHEET_WEB_APP_URL && GOOGLE_SHEET_WEB_APP_URL !== "URL_DE_TU_GOOGLE_APPS_SCRIPT_AQUI") {
+                const res = await fetch(GOOGLE_SHEET_WEB_APP_URL);
+                const data = await res.json();
+                
+                studentState = initialStudents.map(st => {
+                    const match = data.find(d => d.name === st.name && d.lastname === st.lastname);
+                    return {
+                        name: st.name,
+                        lastname: st.lastname,
+                        bestScore: match ? match.bestScore : 0,
+                        attempts: match ? match.attempts : 0
+                    };
+                });
+            } else {
+                useLocalStorageFallback();
+            }
+        } catch (e) {
+            console.log("Error al sincronizar con Google Sheet, utilizando almacenamiento local.");
+            useLocalStorageFallback();
+        }
+        renderStudents();
+    }
+
+    function useLocalStorageFallback() {
         const saved = localStorage.getItem('robotics_quiz_data_6A');
         if (saved) {
-            return JSON.parse(saved);
+            studentState = JSON.parse(saved);
+        } else {
+            studentState = initialStudents.map(s => ({
+                name: s.name,
+                lastname: s.lastname,
+                bestScore: 0,
+                attempts: 0
+            }));
         }
-        return students.map(s => ({
-            name: s.name,
-            lastname: s.lastname,
-            bestScore: 0,
-            attempts: 0
-        }));
     }
 
-    function saveData(data) {
-        localStorage.setItem('robotics_quiz_data_6A', JSON.stringify(data));
-    }
+    async function sendScoreToSheet(name, lastname, score) {
+        // Guardar localmente inmediatamente
+        localStorage.setItem('robotics_quiz_data_6A', JSON.stringify(studentState));
 
-    let studentState = getStoredData();
+        if (GOOGLE_SHEET_WEB_APP_URL && GOOGLE_SHEET_WEB_APP_URL !== "URL_DE_TU_GOOGLE_APPS_SCRIPT_AQUI") {
+            try {
+                await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, lastname: lastname, score: score })
+                });
+            } catch (e) {
+                console.error("Error al enviar a Google Sheet:", e);
+            }
+        }
+    }
 
     function renderStudents() {
         const grid = document.getElementById('studentsGrid');
@@ -616,10 +441,10 @@
             const item = document.createElement('li');
             item.className = 'top-item';
             item.innerHTML = `
-                <div class="student-top-info">
+                <div style="display:flex; align-items:center;">
                     <span class="rank-badge">${index + 1}</span>
                     <div>
-                        <div style="font-weight: 600; color: var(--text);">${st.name}</div>
+                        <div style="font-weight: 600;">${st.name}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);">${st.lastname}</div>
                     </div>
                 </div>
@@ -656,10 +481,7 @@
                 `;
             });
 
-            qDiv.innerHTML = `
-                <div class="q-title">${q.q}</div>
-                ${optionsHTML}
-            `;
+            qDiv.innerHTML = `<div class="q-title">${q.q}</div>${optionsHTML}`;
             form.appendChild(qDiv);
         });
 
@@ -670,7 +492,7 @@
         document.getElementById('quizModal').style.display = 'none';
     }
 
-    function submitQuiz(e) {
+    async function submitQuiz(e) {
         e.preventDefault();
         const form = document.getElementById('quizForm');
 
@@ -688,8 +510,8 @@
             st.bestScore = score;
         }
 
-        saveData(studentState);
         renderStudents();
+        await sendScoreToSheet(st.name, st.lastname, score);
 
         document.getElementById('quizContainer').style.display = 'none';
         document.getElementById('resultsBox').style.display = 'block';
@@ -697,11 +519,11 @@
 
         const feedback = document.getElementById('feedbackDisplay');
         if (score === questions.length) {
-            feedback.textContent = '🌟 ¡Puntuación perfecta! ¡Excelente conocimiento sobre el Bluetooth Controller!';
+            feedback.textContent = '🌟 ¡Puntuación perfecta! ¡Excelente trabajo!';
         } else if (score >= 7) {
-            feedback.textContent = '👍 ¡Muy buen trabajo! Tienes claros los conceptos principales.';
+            feedback.textContent = '👍 ¡Muy buen desempeño! Dominas los conceptos clave.';
         } else {
-            feedback.textContent = '📚 Puedes repasar la lección e intentarlo de nuevo para mejorar tu puntaje.';
+            feedback.textContent = '📚 Repasa la lección e inténtalo nuevamente.';
         }
     }
 
@@ -709,7 +531,8 @@
         openQuiz(currentStudentIndex);
     }
 
-    renderStudents();
+    // Inicializar la aplicación
+    loadScoresFromSheet();
 </script>
 
 </body>
