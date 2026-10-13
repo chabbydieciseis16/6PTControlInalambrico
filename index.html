@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Interactiva - Lección 6: Controlando a Distancia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #06b6d4;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .student-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .student-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(79, 70, 229, 0.15);
+            border-color: var(--primary);
+        }
+
+        .student-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .student-lastname {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-bg {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .badge-attempts {
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        /* Sidebar / Leaderboard */
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-list {
+            list-style: none;
+        }
+
+        .top-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .top-item:nth-child(1) {
+            background: #fef3c7;
+            border-color: #fde047;
+            font-weight: 700;
+        }
+
+        .top-item:nth-child(2) {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .top-item:nth-child(3) {
+            background: #ffedd5;
+            border-color: #fed7aa;
+            font-weight: 600;
+        }
+
+        .rank-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .top-item:nth-child(1) .rank-badge { background: #d97706; }
+        .top-item:nth-child(2) .rank-badge { background: #64748b; }
+        .top-item:nth-child(3) .rank-badge { background: #c2410c; }
+
+        .student-top-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .score-badge {
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        /* Modal / Quiz View */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            border-radius: 20px;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            position: relative;
+        }
+
+        .modal-header {
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #e2e8f0;
+            color: var(--text);
+        }
+
+        .q-card {
+            margin-bottom: 22px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .q-title {
+            font-weight: 600;
+            font-size: 0.98rem;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: white;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .option-label:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+
+        .option-label input {
+            margin-right: 12px;
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        .results-box {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .results-score {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .feedback-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+        }
+
+        .btn-retry {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-retry:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🤖 Robótica y Programación Intermedia 2</h1>
+        <p>Lección 3: Controlando a Distancia (Bluetooth Controller) — 6to Grado Grupo A</p>
+    </header>
+
+    <div class="main-layout">
+        <!-- Grid de Alumnos -->
+        <div>
+            <div class="students-grid" id="studentsGrid"></div>
+        </div>
+
+        <!-- Sidebar Top 10 -->
+        <div class="sidebar">
+            <h2>🏆 TOP 10 Mejores Puntos</h2>
+            <ul class="top-list" id="topList">
+                <li style="text-align: center; color: var(--text-muted); padding: 10px;">Cargando...</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para responder Cuestionario -->
+<div class="modal-overlay" id="quizModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div>
+                <h3 id="modalStudentName">Nombre Alumno</h3>
+                <span id="modalStudentAttempts" style="font-size: 0.8rem; color: var(--text-muted);">Intentos: 0</span>
+            </div>
+            <button class="close-btn" onclick="closeQuiz()">✕</button>
+        </div>
+
+        <div id="quizContainer">
+            <form id="quizForm"></form>
+            <button class="btn-submit" onclick="submitQuiz(event)">Enviar Cuestionario</button>
+        </div>
+
+        <div class="results-box" id="resultsBox">
+            <h3>🎉 ¡Cuestionario Completado!</h3>
+            <div class="results-score" id="scoreDisplay">0 / 10</div>
+            <p class="feedback-text" id="feedbackDisplay"></p>
+            <button class="btn-retry" onclick="resetQuizView()">Intentar de Nuevo 🔄</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const students = [
+        {"name": "Maximiliano", "lastname": "Alejo Romero"},
+        {"name": "Elena Sofía", "lastname": "De Lara Gamas"},
+        {"name": "Natalia", "lastname": "Gallegos Villa"},
+        {"name": "Pablo Daniel", "lastname": "González Jiménez"},
+        {"name": "Romina Natalia", "lastname": "Guzmán Sánchez"},
+        {"name": "Eimy Valeria", "lastname": "Hernández Noriega"},
+        {"name": "Karla Daniela", "lastname": "Hernández Cuevas"},
+        {"name": "Anaite", "lastname": "Hernández Vargas"},
+        {"name": "Génesis", "lastname": "Hernández Ulloa"},
+        {"name": "Paula Elena", "lastname": "Juarez Brito"},
+        {"name": "Diego Iván", "lastname": "Morales Badillo"},
+        {"name": "Luis Octavio", "lastname": "Ozuna Quiroz"},
+        {"name": "André", "lastname": "Pulido Hernández"},
+        {"name": "Iker", "lastname": "Ramos Taracena"},
+        {"name": "Erik Alexander", "lastname": "Ramos Sarracino"},
+        {"name": "Giselle", "lastname": "Romero Hernández"},
+        {"name": "Támara", "lastname": "Rueda Palancares"},
+        {"name": "Gibran", "lastname": "Sánchez Cisneros"},
+        {"name": "José Carlos", "lastname": "Sastré Guzmán"},
+        {"name": "Montserrat", "lastname": "Sosa Ramírez"},
+        {"name": "Gabriel Eduardo", "lastname": "Trujillo Hernández"},
+        {"name": "Vania Naomy", "lastname": "Vasconcelos Peralta"},
+        {"name": "Fatima Monserrat", "lastname": "Ventura Ysidro"}
+    ];
+
+    const questions = [
+        {
+            "q": "1. ¿Qué es la radiofrecuencia (RF)?",
+            "options": [
+                "Transmisión de luz mediante cables de fibra óptica.",
+                "Aplicación de ondas electromagnéticas de alta frecuencia para transmitir datos.",
+                "Sonidos de muy baja frecuencia transmitidos por el aire.",
+                "Conexión física mediante cable Ethernet entre dispositivos."
+            ],
+            "answer": 1
+        },
+        {
+            "q": "2. ¿En qué rango del espectro electromagnético se encuentra la radiofrecuencia?",
+            "options": [
+                "Entre 1 Hz y 100 Hz.",
+                "Entre 100 GHz y 1000 GHz.",
+                "Entre 3 hercios (Hz) y 300 gigahercios (GHz).",
+                "Entre 500 MHz y 1 THz."
+            ],
+            "answer": 2
+        },
+        {
+            "q": "3. ¿Por qué el mBot v2 NO puede conectarse al Dongle y al Bluetooth Controller al mismo tiempo?",
+            "options": [
+                "Porque el robot se queda sin batería.",
+                "Porque usan el mismo canal de comunicaciones y no permite conexión simultánea.",
+                "Porque el control Bluetooth solo funciona sin baterías.",
+                "Porque mBlock 5 lo prohíbe en todos sus programas."
+            ],
+            "answer": 1
+        },
+        {
+            "q": "4. ¿Cómo debes presionar el botón de Bluetooth en el control para ponerlo en modo de emparejamiento?",
+            "options": [
+                "Presionarlo 1 vez rápidamente.",
+                "Mantenerlo presionado durante 5 segundos hasta que el LED parpadee rápidamente.",
+                "Presionarlo 3 veces seguidas.",
+                "Mantener presionado el botón R1 al mismo tiempo."
+            ],
+            "answer": 1
+        },
+        {
+            "q": "5. ¿Qué significa si el LED del Bluetooth Controller cambia a color ROJO?",
+            "options": [
+                "Que el robot está apagado.",
+                "Que la batería del control está por agotarse.",
+                "Que el código se subió correctamente.",
+                "Que el Bluetooth está desconectado."
+            ],
+            "answer": 1
+        },
+        {
+            "q": "6. ¿Cuántos botones programables en total tiene el Bluetooth Controller?",
+            "options": [
+                "8 botones.",
+                "10 botones.",
+                "16 botones programables.",
+                "20 botones."
+            ],
+            "answer": 2
+        },
+        {
+            "q": "7. ¿En qué modo de mBlock 5 debe utilizarse la extensión 'Bluetooth Controller'?",
+            "options": [
+                "En Modo En Vivo (Live Mode).",
+                "En Modo Carga (Upload Mode).",
+                "En Modo Simulación.",
+                "Funciona por igual en cualquier modo."
+            ],
+            "answer": 1
+        },
+        {
+            "q": "8. ¿Qué rango de valores entregan los bloques de Joystick del control en mBlock 5?",
+            "options": [
+                "De 0 a 10.",
+                "De -100 a 100.",
+                "De 0 a 255.",
+                "De -1000 a 1000."
+            ],
+            "answer": 1
+        },
+        {
+            "q": "9. ¿Qué microcontrolador/módulo principal del mBot v2 recibe y decodifica las ondas del control?",
+            "options": [
+                "Arduino Uno.",
+                "ESP32.",
+                "Raspberry Pi.",
+                "Micro:bit."
+            ],
+            "answer": 1
+        },
+        {
+            "q": "10. ¿Qué indica una luz azul FIJA en el LED del Bluetooth Controller?",
+            "options": [
+                "Está buscando un nuevo dispositivo.",
+                "Se encuentra sincronizado con un robot o dispositivo.",
+                "Indica un error de programación.",
+                "El control está apagado."
+            ],
+            "answer": 1
+        }
+    ];
+
+    let currentStudentIndex = null;
+
+    function getStoredData() {
+        const saved = localStorage.getItem('robotics_quiz_data_6A');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        return students.map(s => ({
+            name: s.name,
+            lastname: s.lastname,
+            bestScore: 0,
+            attempts: 0
+        }));
+    }
+
+    function saveData(data) {
+        localStorage.setItem('robotics_quiz_data_6A', JSON.stringify(data));
+    }
+
+    let studentState = getStoredData();
+
+    function renderStudents() {
+        const grid = document.getElementById('studentsGrid');
+        grid.innerHTML = '';
+
+        studentState.forEach((st, idx) => {
+            const pct = (st.bestScore / questions.length) * 100;
+            const card = document.createElement('div');
+            card.className = 'student-card';
+            card.onclick = () => openQuiz(idx);
+
+            card.innerHTML = `
+                <div>
+                    <div class="student-name">${st.name}</div>
+                    <div class="student-lastname">${st.lastname}</div>
+                </div>
+                <div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+                    <div class="card-stats">
+                        <span>Puntos: ${st.bestScore} / ${questions.length}</span>
+                        <span class="badge-attempts">${st.attempts} int.</span>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        renderTop10();
+    }
+
+    function renderTop10() {
+        const topList = document.getElementById('topList');
+        topList.innerHTML = '';
+
+        const sorted = [...studentState]
+            .sort((a, b) => b.bestScore - a.bestScore || a.attempts - b.attempts)
+            .slice(0, 10);
+
+        sorted.forEach((st, index) => {
+            const item = document.createElement('li');
+            item.className = 'top-item';
+            item.innerHTML = `
+                <div class="student-top-info">
+                    <span class="rank-badge">${index + 1}</span>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text);">${st.name}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${st.lastname}</div>
+                    </div>
+                </div>
+                <div class="score-badge">${st.bestScore} pts</div>
+            `;
+            topList.appendChild(item);
+        });
+    }
+
+    function openQuiz(index) {
+        currentStudentIndex = index;
+        const st = studentState[index];
+
+        document.getElementById('modalStudentName').textContent = `${st.name} ${st.lastname}`;
+        document.getElementById('modalStudentAttempts').textContent = `Intentos realizados: ${st.attempts}`;
+
+        document.getElementById('quizContainer').style.display = 'block';
+        document.getElementById('resultsBox').style.display = 'none';
+
+        const form = document.getElementById('quizForm');
+        form.innerHTML = '';
+
+        questions.forEach((q, qIdx) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'q-card';
+
+            let optionsHTML = '';
+            q.options.forEach((opt, optIdx) => {
+                optionsHTML += `
+                    <label class="option-label">
+                        <input type="radio" name="q_${qIdx}" value="${optIdx}" required>
+                        ${opt}
+                    </label>
+                `;
+            });
+
+            qDiv.innerHTML = `
+                <div class="q-title">${q.q}</div>
+                ${optionsHTML}
+            `;
+            form.appendChild(qDiv);
+        });
+
+        document.getElementById('quizModal').style.display = 'flex';
+    }
+
+    function closeQuiz() {
+        document.getElementById('quizModal').style.display = 'none';
+    }
+
+    function submitQuiz(e) {
+        e.preventDefault();
+        const form = document.getElementById('quizForm');
+
+        let score = 0;
+        questions.forEach((q, qIdx) => {
+            const selected = form.querySelector(`input[name="q_${qIdx}"]:checked`);
+            if (selected && parseInt(selected.value) === q.answer) {
+                score++;
+            }
+        });
+
+        const st = studentState[currentStudentIndex];
+        st.attempts += 1;
+        if (score > st.bestScore) {
+            st.bestScore = score;
+        }
+
+        saveData(studentState);
+        renderStudents();
+
+        document.getElementById('quizContainer').style.display = 'none';
+        document.getElementById('resultsBox').style.display = 'block';
+        document.getElementById('scoreDisplay').textContent = `${score} / ${questions.length}`;
+
+        const feedback = document.getElementById('feedbackDisplay');
+        if (score === questions.length) {
+            feedback.textContent = '🌟 ¡Puntuación perfecta! ¡Excelente conocimiento sobre el Bluetooth Controller!';
+        } else if (score >= 7) {
+            feedback.textContent = '👍 ¡Muy buen trabajo! Tienes claros los conceptos principales.';
+        } else {
+            feedback.textContent = '📚 Puedes repasar la lección e intentarlo de nuevo para mejorar tu puntaje.';
+        }
+    }
+
+    function resetQuizView() {
+        openQuiz(currentStudentIndex);
+    }
+
+    renderStudents();
+</script>
+
+</body>
+</html>
